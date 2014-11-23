@@ -1,0 +1,7 @@
+{
+  "subreddit": "NHKEasyNews",
+  //This is the markdown inbetween each paragraph
+  "separator": "\n\n&nbsp;\n\n",
+  //delay inbetween reddit submits in milliseconds
+  "delay": 2000
+}
