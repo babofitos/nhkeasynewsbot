@@ -1,6 +1,6 @@
 module.exports = function() {
   var current = Date.now();
-  var date = new Date("November 20 2014");
+  var date = new Date(current);
   var year = date.getFullYear().toString();
   var month = calcMonth(date);
   var day = date.getDate().toString();
