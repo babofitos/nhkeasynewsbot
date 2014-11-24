@@ -9,9 +9,9 @@ server.listen(process.env.PORT || 5000);
 
 require('./index.js');
 
-//ping ourselves
-// setInterval(function() {
-//   http.get(process.env.URL, function(res) {
-//     console.log('ping');
-//   })
-// }, 300000)
+// ping ourselves
+setInterval(function() {
+  http.get(process.env.URL || 'http://localhost:5000', function(res) {
+    console.log('ping');
+  })
+}, 300000)

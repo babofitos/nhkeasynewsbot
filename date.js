@@ -1,10 +1,12 @@
 module.exports = function() {
-  var current = Date.now();
+  var current = convertToJapanTime(Date.now());
   var date = new Date(current);
   var year = date.getFullYear().toString();
   var month = calcMonth(date);
   var day = date.getDate().toString();
   var fullDate = year + '-' + month + '-' + day;
+
+  console.log(date.toTimeString())
 
   return fullDate;
 }
@@ -19,4 +21,13 @@ function calcMonth(date) {
     month = month.toString();
   }
   return month;
+}
+
+function convertToJapanTime(current) {
+  var japanOffset = -540;
+  var localOffset = new Date().getTimezoneOffset();
+  var timezoneDifference = Math.abs(japanOffset - localOffset);
+  var timezoneDifferenceMilliseconds = timezoneDifference * 60 * 1000;
+
+  return current + timezoneDifferenceMilliseconds;
 }
