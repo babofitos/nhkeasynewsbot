@@ -72,7 +72,7 @@ Reddit.prototype.submit = function(title, text, cb) {
       if (parsed.json.errors.length < 1) {
         cb();
       } else {
-        cb(err);
+        cb(parsed.json.errors);
       }
     } else {
       console.log('Unsuccessful submit');
