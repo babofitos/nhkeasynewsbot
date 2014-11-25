@@ -33,7 +33,9 @@ module.exports = function(reddit) {
 
     function addDateToTitle(date, title) {
       function formatDate(date) {
-        return '[' + date.replace(/-/g, '/') + '] ';
+        date = date.split('-');
+        date = date.slice(1).concat(date[0]).join('/');
+        return '[' + date + '] ';
       }
 
       var formatDate = formatDate(date);
