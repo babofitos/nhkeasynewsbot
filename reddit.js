@@ -70,12 +70,12 @@ Reddit.prototype.submit = function(title, text, cb) {
       var parsed = JSON.parse(body);
 
       if (parsed.json.errors.length < 1) {
-        cb();
+        cb(null);
       } else {
         cb(parsed.json.errors);
       }
     } else {
-      console.log('Unsuccessful submit');
+      cb(err);
     }
   });
 };
