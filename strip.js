@@ -6,9 +6,10 @@ module.exports = function() {
   var first = true;
 
   strip._transform = function(chunk, encoding, done) {
-    var data = chunk.toString('utf8');
+    var data = chunk;
     if (first) {
       first = false;
+      var data = data.toString('utf8');
       this.push(data.slice(1));
     } else {
       this.push(data);

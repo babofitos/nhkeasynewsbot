@@ -21,6 +21,11 @@ module.exports = function(reddit) {
       });
     }
 
+    submitter._flush = function(done) {
+      submitter.emit('done');
+      done();
+    }
+
     function makeEasyUrl(id) {
       var url = 'http://www3.nhk.or.jp/news/easy/' + id + '/' + id + '.html';
 

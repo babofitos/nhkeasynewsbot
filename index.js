@@ -19,41 +19,44 @@ reddit.login(username, password, function(err) {
 
       function main() {
         console.log('Looping');
-        var nhkJSONGet = request({url: 'http://www3.nhk.or.jp/news/easy/news-list.json', json: true})
+        var nhkJSONGet = require('./nhk_JSON.js');
         var date = dateUtil();
-        var JSONStream = require('JSONStream');
-        var getArticleIds = JSONStream.parse([true, date, true, 'news_id']);
+        var getArticleIdsInit = require('./get_article_id.js')(date);
+        var getArticleIds = getArticleIdsInit();
         var strip = require('./strip.js')();
         var checkDupe = checkDupeInit();
         var submitArticle = submitArticleInit(date);
+        var getArticleIdsEmitter = require('./emitters.js').getArticleIdsEmitter;
+        
+        nhkJSONGet(function(err, nhkJSONStream) {
+          if (err) {
+            console.log(err);
+          } else {
+            nhkJSONStream
+            .pipe(strip)
+            .pipe(getArticleIds)
+            .pipe(checkDupe)
+            .on('error', error)
+            .pipe(submitArticle)
+            .on('error', error)
+            .on('done', clean)
+          
+          }
+        });
+        
+        getArticleIdsEmitter.on('error', error);
+        function error(err) {
+          console.log(err);
+        }
 
-        nhkJSONGet
-          .on('error', function(err) {
-            console.log('Error requesting nhk JSON' + err);
-          })
-          .on('response', function(response) {
-            if (response.statusCode != 200) {
-              console.log('Unsuccessful status code. Aborting');
-              nhkJSONGet.abort();
-            } else {
-              nhkJSONGet
-                .pipe(strip)
-                .pipe(getArticleIds)
-                .on('error', function(err) {
-                  console.log('Error parsing JSON');
-                })
-                .pipe(checkDupe)
-                .on('error', function(err) {
-                  console.log(err);
-                })
-                .pipe(submitArticle)
-                .on('error', function(err) {
-                  console.log(err);
-                })
-            }
-          })
+        function clean() {
+          console.log('Cleaning up event listeners');
+          getArticleIdsEmitter.removeListener('error', error);
+          checkDupe.removeListener('error', error);
+          submitArticle.removeListener('error', error);
+        }
+        
       }
   }
 })
-
 
