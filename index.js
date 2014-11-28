@@ -9,6 +9,8 @@ var reddit = require('./reddit.js');
 var config = require('./config.json');
 var submitArticleInit = require('./submitArticle.js')(reddit);
 var checkDupeInit = require('./check_dupe.js')(reddit);
+var addToArticleInit = require('./add_to_article.js');
+
 
 reddit.login(username, password, function(err) {
   if (err) {
@@ -22,12 +24,14 @@ reddit.login(username, password, function(err) {
         var nhkJSONGet = require('./nhk_JSON.js');
         var date = dateUtil();
         var getArticleIdsInit = require('./get_article_id.js')(date);
+        var scrapeArticleInit = require('./scrapeArticle.js')(date);
         var getArticleIds = getArticleIdsInit();
         var strip = require('./strip.js')();
         var checkDupe = checkDupeInit();
-        var submitArticle = submitArticleInit(date);
-        var getArticleIdsEmitter = require('./emitters.js').getArticleIdsEmitter;
-        
+        var scrapeArticle = scrapeArticleInit(date);
+        var addToArticle = addToArticleInit();
+        var submitArticle = submitArticleInit();
+
         nhkJSONGet(function(err, nhkJSONStream) {
           if (err) {
             console.log(err);
@@ -35,25 +39,35 @@ reddit.login(username, password, function(err) {
             nhkJSONStream
             .pipe(strip)
             .pipe(getArticleIds)
+              .on('error', error)
             .pipe(checkDupe)
-            .on('error', error)
+              .on('error', error)
+            .pipe(scrapeArticle)
+              .on('error', error)
+            .pipe(addToArticle)
             .pipe(submitArticle)
-            .on('error', error)
-            .on('done', clean)
-          
+              .on('error', error)
+              .on('success', successfulArticle)
+              .on('done', clean)
           }
         });
         
-        getArticleIdsEmitter.on('error', error);
         function error(err) {
           console.log(err);
         }
 
+        function successfulArticle(o) {
+          console.log('Successful submit for ' + o.title);
+        }
+
         function clean() {
           console.log('Cleaning up event listeners');
-          getArticleIdsEmitter.removeListener('error', error);
+          getArticleIds.removeListener('error', error);
           checkDupe.removeListener('error', error);
+          scrapeArticle.removeListener('error', error);
           submitArticle.removeListener('error', error);
+          submitArticle.removeListener('success', successfulArticle);
+          submitArticle.removeListener('done', clean);
         }
         
       }

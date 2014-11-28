@@ -75,7 +75,7 @@ Reddit.prototype.submit = function(title, text, cb) {
         cb(parsed.json.errors);
       }
     } else {
-      cb(err);
+      cb('Unsuccessful reddit submit');
     }
   });
 };

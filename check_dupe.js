@@ -2,8 +2,6 @@ var request = require('request');
 var stream = require('stream');
 var config = require('./config.json');
 
-
-
 module.exports = function(reddit) {
   return function() {
     var checkDupe = new stream.Transform();
@@ -27,24 +25,23 @@ module.exports = function(reddit) {
           checkDupe.emit('error', err);
           return done();
         }
-        
-        var boundBufferid = bufferid.bind(that);
-        boundBufferid(ids, done);
-      })
+          bufferid.call(that, ids, done);
+      });
     }
 
     function bufferid(ids, cb) {
-      setTimeout(function() {
-        if (ids.length) {
-          var id = ids.shift();
-          var boundBufferid = bufferid.bind(this);
+      setTimeout(pushId.bind(this), config.delay);
 
-          boundBufferid(ids, cb);
-          this.push(id);
+      function pushId() {
+        var id = ids.shift();
+        this.push(id);
+        
+        if (ids.length) {
+          bufferid.call(this, ids, cb);
         } else {
           cb();
         }
-       }.bind(this), config.delay);
+      }
     }
 
     function checkRedditPosts(ids, cb) {
@@ -68,11 +65,13 @@ module.exports = function(reddit) {
                 var index = post.data.selftext.indexOf(id);
 
                 if (index > -1) {
-                  console.log('Duplicate article ' + id + '. Skipping...');
                   ids.splice(ids.indexOf(id), 1);
                 }
               })
             })
+            if (!ids.length) {
+              return cb('No non-duplicates found.');
+            }
             cb(null, ids);    
           }  else {
             cb("Error getting reddit new.json");

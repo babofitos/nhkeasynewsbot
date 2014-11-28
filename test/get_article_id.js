@@ -2,32 +2,37 @@ var stream = require('stream');
 var assert = require('assert');
 var date = '2014-11-1';
 var getArticleIdsInit = require('../get_article_id.js')(date);
-var getArticleIdsEmitter = require('../emitters.js').getArticleIdsEmitter;
 
 describe('getArticleIds', function() {
-  it('should error on bad JSON', function() {
-    var rs = createReadStream('[' + date + ':[{news_id: [[]}]]');
+  var getArticleIds;
 
-    var getArticleIds = getArticleIdsInit();
+  beforeEach(function() {
+    getArticleIds = getArticleIdsInit();
+  });
+
+  it('should error on bad JSON', function(done) {
+    var rs = createReadStream('[{"' + date + '":[{"news_id": ""}}]}]');
 
     rs.pipe(getArticleIds);
 
-    getArticleIdsEmitter.on('error', function(err) {
-      assert.equal(err, 'Error parsing JSON');
+    getArticleIds.on('error', function(err) {
+      assert.equal(err.message, 
+        'Unexpected RIGHT_BRACE("}") in state COMMA'
+      );
+      done();
     });
   });
 
   it('should not error on good JSON', function(done) {
     var rs = createReadStream('[{"' + date + '":[{"news_id":123}]}]');
-    var getArticleIds = getArticleIdsInit();
     
     rs.pipe(getArticleIds);
 
-    getArticleIdsEmitter.on('error', function(err) {
+    getArticleIds.on('error', function(err) {
       assert.equal(err, null);
-    })
+    });
 
-    getArticleIdsEmitter.on('end', function() {
+    getArticleIds.on('end', function() {
       done();
     });
   });
