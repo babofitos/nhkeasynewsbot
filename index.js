@@ -1,3 +1,14 @@
+var environment = process.env.NODE_ENV || 'development';
+var logLevel = environment == 'development' ? 'debug' : 'info'
+var winston = require('winston');
+var logger = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Console)({level: logLevel})
+  ]
+});
+
+global.logger = logger;
+
 var username = process.argv[2] || process.env.USER;
 var password = process.argv[3] || process.env.PW;
 global.subreddit = process.env.SUBREDDIT || 'nhkeasynewsscripttest';
@@ -11,16 +22,15 @@ var submitArticleInit = require('./submitArticle.js')(reddit);
 var checkDupeInit = require('./check_dupe.js')(reddit);
 var addToArticleInit = require('./add_to_article.js');
 
-
 reddit.login(username, password, function(err) {
   if (err) {
-    console.log('Error logging in');
+    logger.error('Error logging in');
     throw err;
   } else {
       setInterval(main, config.loopInterval);
 
       function main() {
-        console.log('Looping');
+        logger.debug('Looping');
         var nhkJSONGet = require('./nhk_JSON.js');
         var date = dateUtil();
         var getArticleIdsInit = require('./get_article_id.js')(date);
@@ -34,7 +44,7 @@ reddit.login(username, password, function(err) {
 
         nhkJSONGet(function(err, nhkJSONStream) {
           if (err) {
-            console.log(err);
+            logger.error(err);
           } else {
             nhkJSONStream
             .pipe(strip)
@@ -53,15 +63,15 @@ reddit.login(username, password, function(err) {
         });
         
         function error(err) {
-          console.log(err);
+          logger.error(err);
         }
 
         function successfulArticle(o) {
-          console.log('Successful submit for ' + o.title);
+          logger.info('Successful submit for ' + o.title);
         }
 
         function clean() {
-          console.log('Cleaning up event listeners');
+          logger.debug('Cleaning up event listeners');
           getArticleIds.removeListener('error', error);
           checkDupe.removeListener('error', error);
           scrapeArticle.removeListener('error', error);

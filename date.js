@@ -1,12 +1,15 @@
+logger = global.logger;
+
 module.exports = function() {
   var current = convertToJapanTime(Date.now());
   var date = new Date(current);
   var year = date.getFullYear().toString();
   var month = calcMonth(date);
-  var day = date.getDate().toString();
+  var day = calcDay(date);
   var fullDate = year + '-' + month + '-' + day;
 
-  console.log(date.toTimeString())
+  logger.log('debug', 'Full date %s', date.toString());
+  logger.log('debug', 'Parsed date %s', fullDate);
 
   return fullDate;
 }
@@ -30,4 +33,15 @@ function convertToJapanTime(current) {
   var timezoneDifferenceMilliseconds = timezoneDifference * 60 * 1000;
 
   return current + timezoneDifferenceMilliseconds;
+}
+
+function calcDay(date) {
+  var day = date.getDay();
+  if (day < 10) {
+    day = day.toString();
+    day = '0' + day;
+  } else {
+    day = day.toString();
+  }
+  return day;
 }

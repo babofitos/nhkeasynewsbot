@@ -1,5 +1,6 @@
 {
   "separator": "\n\n&nbsp;\n\n",
   "delay": 2000,
-  "loopInterval": "300000"
+  "loopInterval": "10000",
+  "pingInterval": "300000"
 }

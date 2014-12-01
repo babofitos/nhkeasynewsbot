@@ -18,6 +18,7 @@ module.exports = function(date) {
         } else {
           d.date = date;
           d.url = easyUrl;
+          logger.debug('Scraped nhkeasy: %s', d.title);
           that.push(d);
           done();
         }

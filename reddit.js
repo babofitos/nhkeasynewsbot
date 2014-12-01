@@ -1,5 +1,6 @@
 var request = require('request');
 var config = require('./config.json');
+var logger = global.logger;
 
 module.exports = new Reddit();
 
@@ -36,7 +37,7 @@ Reddit.prototype.login = function(user, pw, cb) {
         that.modhash = modhash;
         that.cookie = cookie;
 
-        console.log('Login successful.');
+        logger.info('Login successful.');
         cb();
       } else {
         cb(parsed.json.errors);

@@ -1,6 +1,7 @@
 var request = require('request');
 var stream = require('stream');
 var config = require('./config.json');
+logger = global.logger;
 
 module.exports = function(reddit) {
   return function() {
@@ -8,7 +9,11 @@ module.exports = function(reddit) {
     var ids = [];
 
     checkDupe._transform = function(chunk, encoding, done) {
-      ids.push(chunk.toString('utf8'));
+      var data = chunk.toString('utf8');
+
+      logger.log('debug', 'Checking dupe on article ID %s', data);
+
+      ids.push(data);
       done();
     }
 
@@ -34,6 +39,8 @@ module.exports = function(reddit) {
 
       function pushId() {
         var id = ids.shift();
+
+        logger.log('debug', 'Pushing new article id %s', id);
         this.push(id);
         
         if (ids.length) {
@@ -65,6 +72,7 @@ module.exports = function(reddit) {
                 var index = post.data.selftext.indexOf(id);
 
                 if (index > -1) {
+                  logger.log('debug', 'Article ID %s is a dupe', id);
                   ids.splice(ids.indexOf(id), 1);
                 }
               })
