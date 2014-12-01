@@ -1,6 +1,6 @@
 var request = require('request');
 var config = require('./config.json');
-var logger = global.logger;
+var logger = require('./logger.js');
 
 module.exports = new Reddit();
 

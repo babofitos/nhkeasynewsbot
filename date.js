@@ -1,4 +1,4 @@
-logger = global.logger;
+var logger = require('./logger.js');
 
 module.exports = function() {
   var current = convertToJapanTime(Date.now());

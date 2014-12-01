@@ -1,7 +1,7 @@
 var request = require('request');
 var stream = require('stream');
 var config = require('./config.json');
-logger = global.logger;
+var logger = require('./logger.js');
 
 module.exports = function(reddit) {
   return function() {

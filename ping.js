@@ -1,4 +1,5 @@
-logger = global.logger;
+var logger = require('./logger.js');
+
 module.exports = function(pingInterval) {
   // ping ourselves
   setInterval(function() {

@@ -1,7 +1,7 @@
 var stream = require('stream');
 var nhkeasy = require('nhkeasy');
 var config = require('./config.json');
-
+var logger = require('./logger.js');
 
 module.exports = function(date) {
   return function() {

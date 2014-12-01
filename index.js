@@ -1,14 +1,3 @@
-var environment = process.env.NODE_ENV || 'development';
-var logLevel = environment == 'development' ? 'debug' : 'info'
-var winston = require('winston');
-var logger = new (winston.Logger)({
-  transports: [
-    new (winston.transports.Console)({level: logLevel})
-  ]
-});
-
-global.logger = logger;
-
 var username = process.argv[2] || process.env.USER;
 var password = process.argv[3] || process.env.PW;
 global.subreddit = process.env.SUBREDDIT || 'nhkeasynewsscripttest';
@@ -21,6 +10,7 @@ var config = require('./config.json');
 var submitArticleInit = require('./submitArticle.js')(reddit);
 var checkDupeInit = require('./check_dupe.js')(reddit);
 var addToArticleInit = require('./add_to_article.js');
+var logger = require('./logger.js');
 
 reddit.login(username, password, function(err) {
   if (err) {
