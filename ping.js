@@ -1,4 +1,5 @@
 var logger = require('./logger.js');
+var http = require('http');
 
 module.exports = function(pingInterval) {
   // ping ourselves
