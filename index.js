@@ -22,7 +22,7 @@ reddit.login(username, password, function(err) {
       function main() {
         logger.debug('Looping');
         var nhkJSONGet = require('./nhk_JSON.js');
-        var date = dateUtil();
+        var date = dateUtil(new Date());
         var getArticleIdsInit = require('./get_article_id.js')(date);
         var scrapeArticleInit = require('./scrapeArticle.js')(date);
         var getArticleIds = getArticleIdsInit();

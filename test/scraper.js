@@ -1,7 +1,9 @@
 var assert = require('assert');
 var stream = require('stream');
 var nock = require('nock');
-var date = require('../date.js')();
+var mockDate = new Date('Nov 1 2014');
+var dateUtil = require('../date.js');
+var date = dateUtil(mockDate);
 var scrapeArticleInit = require('../scrapeArticle.js')(date);
 var articleId = 'k123';
 var fs = require('fs');
@@ -57,7 +59,7 @@ describe('scrapeArticle', function() {
       assert.deepEqual(data, { 
         article: '２２日午後１０時ころ、長野県でマグニチュード６．７（Ｍ６．７）の地震がありました。長野市と小谷村、小川村で震度６弱でした。白馬村と信濃町は震度５強でした。\n\n&nbsp;\n\nこの地震で４５人がけがをしたと、２５日の昼までにわかっています。そして、３１の家が全部壊れて、４６の家が半分壊れました。',
         title: '長野県で震度６弱の地震　これからも十分に注意して',
-        date: date,
+        date: '2014-11-01',
         url: 'http://www3.nhk.or.jp/news/easy/k123/k123.html'
       });
     });

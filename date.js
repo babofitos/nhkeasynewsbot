@@ -1,8 +1,9 @@
 var logger = require('./logger.js');
 
-module.exports = function() {
-  var current = convertToJapanTime(Date.now());
-  var date = new Date(current);
+module.exports = function(current) {
+  current = current.getTime();
+  var japanCurrent = convertToJapanTime(current);
+  var date = new Date(japanCurrent);
   var year = date.getFullYear().toString();
   var month = calcMonth(date);
   var day = calcDay(date);
@@ -36,7 +37,7 @@ function convertToJapanTime(current) {
 }
 
 function calcDay(date) {
-  var day = date.getDay();
+  var day = date.getDate();
   if (day < 10) {
     day = day.toString();
     day = '0' + day;
