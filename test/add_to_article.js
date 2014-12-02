@@ -4,7 +4,7 @@ var addToArticleInit = require('../add_to_article.js');
 var send = {
   title: 'title',
   article: 'article',
-  date: '11/1/2014',
+  date: '2014-11-01',
   url: 'http://www.example.com'
 }
 var config = require('../config.json');
@@ -21,9 +21,24 @@ describe('addToArticle', function() {
     rs.pipe(addToArticle);
   });
 
+  it('should reverse date and separate by /', function() {
+    var date = send.date.split('-');
+    date = date.slice(1).concat(date[0]).join('/');
+    date = '[' + date + ']';
+
+    addToArticle.on('data', function(data) {
+      var returnedDate = data.title.split(' ')[0];
+
+      assert.equal(returnedDate, date);
+    });
+  });
+
   it('should add date to title', function() {
     addToArticle.on('data', function(data) {
-      assert.equal(data.title, '[' + send.date + '] ' + send.title)
+      var date = send.date.split('-');
+      date = date.slice(1).concat(date[0]).join('/');
+      
+      assert.equal(data.title, '[' + date + '] ' + send.title);
     });
   });
 
@@ -31,7 +46,7 @@ describe('addToArticle', function() {
     addToArticle.on('data', function(data) {
       assert.equal(data.article, 
         send.url + separator + send.article + separator + '*I am a bot* | [Source](' + source + ')' 
-      )
+      );
     });
   });
 });
