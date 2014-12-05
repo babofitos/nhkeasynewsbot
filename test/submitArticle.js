@@ -1,16 +1,14 @@
 var assert = require('assert');
 var stream = require('stream');
 var nock = require('nock');
-var reddit = require('../reddit.js');
-var submitArticleInit = require('../submitArticle.js')(reddit);
-global.subreddit = 'asdfasdf';
+var submitArticle = require('../submitArticle.js');
 var mockObj = {
   title: 'title',
   article: 'article'
-}
+};
 
 describe('submitArticle', function() {
-  it('should emit error when unable to reddit submit', function(done) {
+  it('should error when unable to reddit submit', function(done) {
     nock('https://api.reddit.com')
       .filteringRequestBody(function(path) {
         return 'ABC';
@@ -19,17 +17,13 @@ describe('submitArticle', function() {
         'ABC')
       .reply(404);
 
-    var rs = createReadStream();
-    var submitArticle = submitArticleInit();
-    rs.pipe(submitArticle);
-
-    submitArticle.on('error', function(err) {
+    submitArticle(mockObj, function(err, articleAndTitle) {
       assert.equal(err, 'Unsuccessful reddit submit');
       done();
     });
   });
 
-  it('should emit success on good submit', function(done) {
+  it('should return article and title on good submit', function(done) {
     nock('https://api.reddit.com')
       .filteringRequestBody(function(path) {
         return 'ABC';
@@ -42,25 +36,10 @@ describe('submitArticle', function() {
         }
       });
 
-    var rs = createReadStream();
-    var submitArticle = submitArticleInit();
-    rs.pipe(submitArticle);
-
-    submitArticle.on('success', function(obj) {
-      assert.equal(obj.title, mockObj.title);
-      assert.equal(obj.article, mockObj.article);
+    submitArticle(mockObj, function(err, articleAndTitle) {
+      assert.equal(articleAndTitle.title, mockObj.title);
+      assert.equal(articleAndTitle.article, mockObj.article);
       done();
     });
   });
 });
-
-function createReadStream() {
-  var rs = new stream.Readable({objectMode: true});
-
-  rs._read = function() {
-    rs.push(mockObj);
-    rs.push(null);
-  }
-
-  return rs;
-}

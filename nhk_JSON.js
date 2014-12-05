@@ -13,5 +13,5 @@ module.exports = function(cb) {
       } else {
         cb(null, nhkJSONGet);
       }
-  })
-}
+  });
+};

@@ -1,36 +1,26 @@
-var stream = require('stream');
 var nhkeasy = require('nhkeasy');
 var config = require('./config.json');
 var logger = require('./logger.js');
 
-module.exports = function(date) {
-  return function() {
-    var scraper = new stream.Transform({objectMode: true});
+module.exports = function(data, cb) {
+  var id = data;
+  var easyUrl = makeEasyUrl(id);
+  
+  nhkeasy({separator: config.separator}, easyUrl, push);
 
-    scraper._transform = function(chunk, encoding, done) {
-      var id = chunk.toString('utf8');
-      var that = this;
-      var easyUrl = makeEasyUrl(id);
-      
-      nhkeasy({separator: config.separator}, easyUrl, function(err, d) {
-        if (err) {
-          scraper.emit('error', err);
-        } else {
-          d.date = date;
-          d.url = easyUrl;
-          logger.debug('Scraped nhkeasy: %s', d.title);
-          that.push(d);
-          done();
-        }
-      });
-
-      function makeEasyUrl(id) {
-        var url = 'http://www3.nhk.or.jp/news/easy/' + id + '/' + id + '.html';
-
-        return url;
-      }
+  function push(err, d) {
+    if (err) {
+      cb(err);
+    } else {
+      d.url = easyUrl;
+      logger.debug('Scraped nhkeasy: %s', d.title);
+      cb(null, d);
     }
-    
-    return scraper;
   }
+};
+
+function makeEasyUrl(id) {
+  var url = 'http://www3.nhk.or.jp/news/easy/' + id + '/' + id + '.html';
+
+  return url;
 }

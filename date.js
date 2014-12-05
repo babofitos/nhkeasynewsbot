@@ -1,6 +1,7 @@
 var logger = require('./logger.js');
+var h;
 
-module.exports = function(current) {
+exports.new = function(current) {
   current = current.getTime();
   var japanCurrent = convertToJapanTime(current);
   var date = new Date(japanCurrent);
@@ -8,12 +9,15 @@ module.exports = function(current) {
   var month = calcMonth(date);
   var day = calcDay(date);
   var fullDate = year + '-' + month + '-' + day;
-
   logger.log('debug', 'Full date %s', date.toString());
   logger.log('debug', 'Parsed date %s', fullDate);
 
-  return fullDate;
-}
+  h = fullDate;
+};
+
+exports.current = function() {
+  return h;
+};
 
 function calcMonth(date) {
   var month = date.getMonth();

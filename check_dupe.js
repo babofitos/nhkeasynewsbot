@@ -1,93 +1,55 @@
-var request = require('request');
-var stream = require('stream');
-var config = require('./config.json');
 var logger = require('./logger.js');
+var request = require('request');
+var reddit = require('./reddit.js');
 
-module.exports = function(reddit) {
-  return function() {
-    var checkDupe = new stream.Transform();
-    var ids = [];
+module.exports = function(data, cb) {
+  var ids = data;
 
-    checkDupe._transform = function(chunk, encoding, done) {
-      var data = chunk.toString('utf8');
-
-      logger.log('debug', 'Checking dupe on article ID %s', data);
-
-      ids.push(data);
-      done();
+  checkRedditPosts(ids, function(err, ids) {
+    if (err) {
+      cb(err);
+    } else {
+      cb(null, ids);
     }
+  });
 
-    checkDupe._flush = function (done) {
-      if (ids.length < 1) {
-        checkDupe.emit('error', 'No articles for date found.');
-        return done();
-      }
-
-      var that = this;
-      
-      checkRedditPosts(ids, function(err, ids) {
-        if (err) {
-          checkDupe.emit('error', err);
-          return done();
+  function checkRedditPosts(ids, cb) {
+    if (ids.length === 0) {
+      return cb('No articles for date found.');
+    }
+    request(
+      {
+        url: 'https://www.reddit.com/r/' + reddit.subreddit + '/new.json',
+        encoding: 'utf8',
+        json: true,
+        headers: {
+        'user-agent': reddit.userAgent,
+        'X-Modhash': reddit.modhash,
+        'Cookie': 'reddit_session='+reddit.cookie
         }
-          bufferid.call(that, ids, done);
-      });
-    }
+      },
+      function (err, res, body) {
+        if (!err && res.statusCode == 200) {
+          var posts = body.data.children;
 
-    function bufferid(ids, cb) {
-      setTimeout(pushId.bind(this), config.delay);
+          posts.forEach(function(post) {
+            ids.forEach(function(id) {
+              var index = post.data.selftext.indexOf(id);
 
-      function pushId() {
-        var id = ids.shift();
-
-        logger.log('debug', 'Pushing new article id %s', id);
-        this.push(id);
-        
-        if (ids.length) {
-          bufferid.call(this, ids, cb);
-        } else {
-          cb();
-        }
-      }
-    }
-
-    function checkRedditPosts(ids, cb) {
-      request(
-        {
-          url: 'https://www.reddit.com/r/' + global.subreddit + '/new.json',
-          encoding: 'utf8',
-          json: true,
-          headers: {
-          'user-agent': reddit.userAgent,
-          'X-Modhash': reddit.modhash,
-          'Cookie': 'reddit_session='+reddit.cookie
+              if (index > -1) {
+                logger.log('debug', 'Article ID %s is a dupe', id);
+                ids.splice(ids.indexOf(id), 1);
+              }
+            });
+          });
+          if (!ids.length) {
+            return cb('No non-duplicates found.');
           }
-        }, 
-        function (err, res, body) {
-          if (!err && res.statusCode == 200) {
-            var posts = body.data.children;
-            
-            posts.forEach(function(post) {
-              ids.forEach(function(id) {
-                var index = post.data.selftext.indexOf(id);
-
-                if (index > -1) {
-                  logger.log('debug', 'Article ID %s is a dupe', id);
-                  ids.splice(ids.indexOf(id), 1);
-                }
-              })
-            })
-            if (!ids.length) {
-              return cb('No non-duplicates found.');
-            }
-            cb(null, ids);    
-          }  else {
-            cb("Error getting reddit new.json");
-          }
+          cb(null, ids);
+        }  else {
+          cb("Error getting reddit new.json");
         }
-      )
-    }
-    return checkDupe;
+      }
+    );
   }
-}
-
+};

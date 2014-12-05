@@ -2,12 +2,14 @@ var request = require('request');
 var config = require('./config.json');
 var logger = require('./logger.js');
 
-module.exports = new Reddit();
+var reddit = new Reddit();
+module.exports = reddit;
 
 function Reddit() {
   this.modhash = null;
   this.cookie = null;
   this.userAgent = 'nhk easy news article scraper bot by /u/babofitos';
+  this.subreddit = process.env.SUBREDDIT || 'nhkeasynewsscripttest';
 }
 
 Reddit.prototype.login = function(user, pw, cb) {
@@ -24,7 +26,7 @@ Reddit.prototype.login = function(user, pw, cb) {
       "passwd": pw,
       "rem": true
     }
-  }
+  };
 
   request(options, function (err, res, body) {
     if (!err && res.statusCode === 200) {
@@ -63,9 +65,9 @@ Reddit.prototype.submit = function(title, text, cb) {
       "title": title,
       "text": text,
       "uh": this.modhash,
-      "sr": global.subreddit
+      "sr": this.subreddit
     }
-  }
+  };
   request(options, function (err, res, body) {
     if (!err && res.statusCode === 200) {
       var parsed = JSON.parse(body);

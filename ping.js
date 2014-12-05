@@ -6,6 +6,6 @@ module.exports = function(pingInterval) {
   setInterval(function() {
     http.get(process.env.URL || 'http://localhost:5000', function(res) {
       logger.info('ping');
-    })
-  }, pingInterval)
-}
+    });
+  }, pingInterval);
+};

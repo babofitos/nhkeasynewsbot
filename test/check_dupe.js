@@ -1,46 +1,32 @@
 var assert = require('assert');
 var nock = require('nock');
-var stream = require('stream');
 var reddit = require('../reddit.js');
-var checkDupeInit = require('../check_dupe.js')(reddit);
+var checkDupe = require('../check_dupe.js');
 var mockId = 'k123';
-global.subreddit = 'asdfasdf';
+var mockId2 = 'k124';
 
 describe('checkDupe', function() {
-  this.timeout(2100);
-
-  it('should emit error when cannot get new.json', function() {
-    var checkDupe = checkDupeInit();
-    var rs = createReadStream();
-    
+  it('should error when cannot get new.json', function(done) {
     nock('https://www.reddit.com')
-      .get('/r/' + global.subreddit + '/new.json')
+      .get('/r/' + reddit.subreddit + '/new.json')
       .reply(404);
 
-    rs.pipe(checkDupe);
-
-    checkDupe.on('error', function(err) {
+    checkDupe([1,2,3], function(err) {
       assert.equal(err, 'Error getting reddit new.json');
+      done();
     });
   });
 
-  it('should emit error when no articles found', function() {
-    var checkDupe = checkDupeInit();
-    var rs = createEmptyReadStream();
-
-    rs.pipe(checkDupe);
-
-    checkDupe.on('error', function(err) {
+  it('should error when no articles found', function(done) {
+    checkDupe([], function(err) {
       assert.equal(err, 'No articles for date found.');
+      done();
     });
   });
 
   it('should push non duplicate ids', function(done) {
-    var checkDupe = checkDupeInit();
-    var rs = createReadStream();
-
     nock('https://www.reddit.com')
-      .get('/r/' + global.subreddit + '/new.json')
+      .get('/r/' + reddit.subreddit + '/new.json')
       .reply(200, {
         data: {
           children: [
@@ -53,28 +39,16 @@ describe('checkDupe', function() {
         }
       });
 
-    rs.pipe(checkDupe);
-
-    checkDupe.on('error', function(err) {
+    checkDupe([mockId, mockId2], function(err, ids) {
       assert.equal(err, null);
-    });
-
-    checkDupe.on('data', function(data) {
-      data = data.toString('utf8');
-      assert.equal(data, mockId);
-    });
-
-    checkDupe.on('end', function() {
+      assert.deepEqual(ids, [mockId, mockId2]);
       done();
-    })
+    });
   });
 
   it('should not push if all ids are dupes', function(done) {
-    var checkDupe = checkDupeInit();
-    var rs = createReadStream();
-
     nock('https://www.reddit.com')
-      .get('/r/' + global.subreddit + '/new.json')
+      .get('/r/' + reddit.subreddit + '/new.json')
       .reply(200, {
         data: {
           children: [
@@ -87,30 +61,11 @@ describe('checkDupe', function() {
         }
       });
 
-    rs.pipe(checkDupe);
-
-    checkDupe.on('error', function(err) {
+    checkDupe([mockId], function(err, ids) {
       assert.equal(err, 'No non-duplicates found.');
       done();
     });
+      
+ 
   });
 });
-
-function createReadStream() {
-  var rs = new stream.Readable();
-  rs._read = function() {
-    rs.push(mockId)
-    rs.push(null);
-  }
-
-  return rs;
-}
-
-function createEmptyReadStream() {
-  var rs = new stream.Readable();
-  rs._read = function() {
-    rs.push(null);
-  }
-
-  return rs;
-}

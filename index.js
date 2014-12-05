@@ -1,76 +1,49 @@
-var username = process.argv[2] || process.env.USER;
-var password = process.argv[3] || process.env.PW;
-global.subreddit = process.env.SUBREDDIT || 'nhkeasynewsscripttest';
-
-var dateUtil = require('./date.js');
-
-var request = require('request');
-var reddit = require('./reddit.js');
 var config = require('./config.json');
-var submitArticleInit = require('./submitArticle.js')(reddit);
-var checkDupeInit = require('./check_dupe.js')(reddit);
-var addToArticleInit = require('./add_to_article.js');
+var checkDupe = require('./check_dupe.js');
 var logger = require('./logger.js');
+var map = require('map-stream');
+var scrapeArticle = require('./scrapeArticle.js');
+var addToArticle = require('./add_to_article.js');
+var submitArticle = require('./submitArticle.js');
 
-reddit.login(username, password, function(err) {
-  if (err) {
-    logger.error('Error logging in');
-    throw err;
-  } else {
-      setInterval(main, config.loopInterval);
+function main(date, cb) {
+  var d = require('domain').create();
+  require('./date.js').new(date);
+  logger.debug('Looping');
+  var nhkJSONGet = require('./nhk_JSON.js');
+  var getArticleIds = require('./get_article_id.js')();
+  var strip = require('./strip.js')();
+  var wait = require('./wait.js').bind(undefined, config.delay);
+  var collect = require('./collect.js');
+  var each = require('./each.js');
 
-      function main() {
-        logger.debug('Looping');
-        var nhkJSONGet = require('./nhk_JSON.js');
-        var date = dateUtil(new Date());
-        var getArticleIdsInit = require('./get_article_id.js')(date);
-        var scrapeArticleInit = require('./scrapeArticle.js')(date);
-        var getArticleIds = getArticleIdsInit();
-        var strip = require('./strip.js')();
-        var checkDupe = checkDupeInit();
-        var scrapeArticle = scrapeArticleInit(date);
-        var addToArticle = addToArticleInit();
-        var submitArticle = submitArticleInit();
+  nhkJSONGet(function(err, nhkJSONStream) {
+    if (err) {
+      logger.error(err);
+    } else {
+      d.run(function() {
+        nhkJSONStream
+          .pipe(strip)
+          .pipe(getArticleIds)
+          .on('error', function(err) {
+            cb(err.message);
+          })
+          .pipe(collect())
+          .pipe(map(checkDupe))
+          .pipe(each())
+          .pipe(wait())
+          .pipe(map(scrapeArticle))
+          .pipe(map(addToArticle))
+          .pipe(wait())
+          .pipe(map(submitArticle))
+          .on('end', function() {
+            cb(null);
+          });
+      });
+      d.on('error', cb);
+      
+    }
+  });
+}
 
-        nhkJSONGet(function(err, nhkJSONStream) {
-          if (err) {
-            logger.error(err);
-          } else {
-            nhkJSONStream
-            .pipe(strip)
-            .pipe(getArticleIds)
-              .on('error', error)
-            .pipe(checkDupe)
-              .on('error', error)
-            .pipe(scrapeArticle)
-              .on('error', error)
-            .pipe(addToArticle)
-            .pipe(submitArticle)
-              .on('error', error)
-              .on('success', successfulArticle)
-              .on('done', clean)
-          }
-        });
-        
-        function error(err) {
-          logger.error(err);
-        }
-
-        function successfulArticle(o) {
-          logger.info('Successful submit for ' + o.title);
-        }
-
-        function clean() {
-          logger.debug('Cleaning up event listeners');
-          getArticleIds.removeListener('error', error);
-          checkDupe.removeListener('error', error);
-          scrapeArticle.removeListener('error', error);
-          submitArticle.removeListener('error', error);
-          submitArticle.removeListener('success', successfulArticle);
-          submitArticle.removeListener('done', clean);
-        }
-        
-      }
-  }
-})
-
+module.exports = main;

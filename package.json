@@ -1,6 +1,6 @@
 {
   "name": "nhkeasybot",
-  "version": "1.8.1",
+  "version": "1.9.0",
   "description": "crawl nhkeasynews subreddit and submit new articles",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,8 @@
     "JSONStream": "^0.9.0",
     "nhkeasy": "^1.2.0",
     "request": "^2.48.0",
-    "winston": "~0.8.3"
+    "winston": "~0.8.3",
+    "map-stream": "0.0.5"
   },
   "devDependencies": {
     "mocha": "^2.0.1",

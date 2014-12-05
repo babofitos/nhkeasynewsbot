@@ -10,14 +10,14 @@ describe('strip', function() {
     strip = require('../strip.js')();
     i = 0;
     rs = createReadStream();
-  })
+  });
 
   it('should strip the first character of the first chunk',
     function(done) {
       rs.pipe(strip);
       strip
         .on('data', function(data) {
-          if (i == 0) {
+          if (i === 0) {
             assert.equal(data.toString('utf8'), 'i');
           }
           i++;
@@ -43,7 +43,7 @@ describe('strip', function() {
         });
     }
   );
-})
+});
 
 function createReadStream() {
   var rs = new stream.Readable();
@@ -52,7 +52,7 @@ function createReadStream() {
     rs.push('hi');
     rs.push('there');
     rs.push(null);
-  }
+  };
 
   return rs;
 }

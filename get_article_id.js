@@ -1,9 +1,6 @@
 var JSONStream = require('JSONStream');
 
-module.exports = function(date) {  
-  return function() {
-    var getArticleIds = JSONStream.parse([true, date, true, 'news_id']);
-
-    return getArticleIds;
-  }
-}
+module.exports = function() {
+  var date = require('./date.js').current();
+  return JSONStream.parse([true, date, true, 'news_id']);
+};

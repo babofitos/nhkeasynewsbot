@@ -9,13 +9,13 @@ module.exports = function() {
     var data = chunk;
     if (first) {
       first = false;
-      var data = data.toString('utf8');
+      data = data.toString('utf8');
       this.push(data.slice(1));
     } else {
       this.push(data);
     }
     done();
-  }
+  };
 
   return strip;
-}
+};
