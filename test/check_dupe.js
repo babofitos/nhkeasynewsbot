@@ -1,7 +1,7 @@
 var assert = require('assert');
 var nock = require('nock');
-var reddit = require('../reddit.js');
-var checkDupe = require('../check_dupe.js');
+var reddit = require('../lib/reddit.js');
+var checkDupe = require('../lib/check_dupe.js');
 var mockId = 'k123';
 var mockId2 = 'k124';
 

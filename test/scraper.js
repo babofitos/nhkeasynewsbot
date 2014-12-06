@@ -1,9 +1,9 @@
 var assert = require('assert');
 var nock = require('nock');
 var mockDate = new Date('Nov 1 2014');
-require('../date.js').new(mockDate);
-var date = require('../date.js').current();
-var scrapeArticle = require('../scrapeArticle.js');
+require('../lib/date.js').new(mockDate);
+var date = require('../lib/date.js').current();
+var scrapeArticle = require('../lib/scrapeArticle.js');
 var articleId = 'k123';
 var fs = require('fs');
 var mockResponse = fs.readFileSync(__dirname + '/mock.html');

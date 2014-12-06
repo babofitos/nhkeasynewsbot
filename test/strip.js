@@ -7,7 +7,7 @@ describe('strip', function() {
   var rs;
 
   beforeEach(function() {
-    strip = require('../strip.js')();
+    strip = require('../lib/strip.js')();
     i = 0;
     rs = createReadStream();
   });

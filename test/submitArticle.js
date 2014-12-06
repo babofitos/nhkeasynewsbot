@@ -1,7 +1,7 @@
 var assert = require('assert');
 var stream = require('stream');
 var nock = require('nock');
-var submitArticle = require('../submitArticle.js');
+var submitArticle = require('../lib/submitArticle.js');
 var mockObj = {
   title: 'title',
   article: 'article'

@@ -1,5 +1,5 @@
 var assert = require('assert');
-var addToArticle = require('../add_to_article.js');
+var addToArticle = require('../lib/add_to_article.js');
 var send = {
   title: 'title',
   article: 'article',
@@ -8,7 +8,7 @@ var send = {
 var config = require('../config.json');
 var separator = config.separator;
 var source = require('../package.json').repository.url;
-var date = require('../date.js');
+var date = require('../lib/date.js');
 
 describe('addToArticle', function() {
   it('should reverse date and separate by /', function(done) {

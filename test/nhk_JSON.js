@@ -1,5 +1,5 @@
 var nock = require('nock');
-var nhkJSONGet = require('../nhk_JSON.js');
+var nhkJSONGet = require('../lib/nhk_JSON.js');
 var assert = require('assert');
 var stream = require('stream');
 

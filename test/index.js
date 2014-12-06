@@ -1,11 +1,11 @@
 var assert = require('assert');
 var nock = require('nock');
-var index = require('../index.js');
+var index = require('../lib/index.js');
 var fs = require('fs');
 var mockResponse = fs.readFileSync(__dirname + '/mock.html');
 var articleId = 'k10013688691000';
 var date = new Date('Dec 4 2014');
-var reddit = require('../reddit.js');
+var reddit = require('../lib/reddit.js');
 
 describe('index', function() {
   this.timeout(4200);

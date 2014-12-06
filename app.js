@@ -1,10 +1,10 @@
 var http = require('http');
 var config = require('./config.json');
-var reddit = require('./reddit.js');
+var reddit = require('./lib/reddit.js');
 var username = process.argv[2] || process.env.USER;
 var password = process.argv[3] || process.env.PW;
-var main = require('./index.js');
-var logger = require('./logger.js');
+var main = require('./lib/index.js');
+var logger = require('./lib/logger.js');
 
 logger.info('ENV %s', process.env.NODE_ENV);
 
@@ -32,4 +32,4 @@ reddit.login(username, password, function(err) {
 });
 
 
-require('./ping.js')(config.pingInterval);
+require('./lib/ping.js')(config.pingInterval);
