@@ -1,3 +1,5 @@
+require('look').start();
+
 var http = require('http');
 var config = require('./config.json');
 var reddit = require('./lib/reddit.js');
