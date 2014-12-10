@@ -4,7 +4,9 @@ var reddit = require('../lib/reddit.js');
 var checkDupe = require('../lib/check_dupe.js');
 var mockId = 'k123';
 var mockId2 = 'k124';
-
+var format = require('util').format;
+var mockSelfText = format('http://www3.nhk.or.jp/news/easy/%s/%s.html', mockId, mockId);
+var mockSelfTextNonDupe = format('http://www3.nhk.or.jp/news/easy/%s/%s.html', 'k122', 'k122');
 describe('checkDupe', function() {
   it('should error when cannot get new.json', function(done) {
     nock('https://www.reddit.com')
@@ -32,7 +34,7 @@ describe('checkDupe', function() {
           children: [
             {
               data: {
-                selftext: 'k122'
+                selftext: mockSelfTextNonDupe
               }
             }
           ]
@@ -54,7 +56,7 @@ describe('checkDupe', function() {
           children: [
             {
               data: {
-                selftext: mockId
+                selftext: mockSelfText
               }
             }
           ]
@@ -65,7 +67,27 @@ describe('checkDupe', function() {
       assert.equal(err, 'No non-duplicates found.');
       done();
     });
-      
- 
+  });
+
+  it('should not error when no url in selftext', function(done) {
+    nock('https://www.reddit.com')
+      .get('/r/' + reddit.subreddit + '/new.json')
+      .reply(200, {
+        data: {
+          children: [
+            {
+              data: {
+                selftext: 'blah'
+              }
+            }
+          ]
+        }
+    });
+
+    checkDupe([mockId], function(err, ids) {
+      assert.equal(err, null);
+      assert.equal(ids, mockId)
+      done();
+    });
   });
 });
