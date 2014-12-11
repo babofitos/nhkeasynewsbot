@@ -5,7 +5,7 @@ var send = {
   article: 'article',
   url: 'http://www.example.com'
 };
-var config = require('../config.json');
+var config = require('../config.js');
 var separator = config.separator;
 var source = require('../package.json').repository.url;
 var date = require('../lib/date.js');
