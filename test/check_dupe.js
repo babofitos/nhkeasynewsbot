@@ -1,93 +1,35 @@
 var assert = require('assert');
-var nock = require('nock');
-var reddit = require('../lib/reddit.js');
-var checkDupe = require('../lib/check_dupe.js');
-var mockId = 'k123';
-var mockId2 = 'k124';
-var format = require('util').format;
-var mockSelfText = format('http://www3.nhk.or.jp/news/easy/%s/%s.html', mockId, mockId);
-var mockSelfTextNonDupe = format('http://www3.nhk.or.jp/news/easy/%s/%s.html', 'k122', 'k122');
+var CheckDupe = require('../lib/check_dupe.js');
+var mockCurrentIds = ['k1','k2','k3'];
+var mockSubmittedIds = ['k4','k5'];
+
 describe('checkDupe', function() {
-  it('should error when cannot get new.json', function(done) {
-    nock('https://www.reddit.com')
-      .get('/r/' + reddit.subreddit + '/new.json')
-      .reply(404);
+  var checkDupe;
 
-    checkDupe([1,2,3], function(err) {
-      assert.equal(err, 'Error getting reddit new.json');
-      done();
-    });
+  beforeEach(function() {
+    checkDupe = new CheckDupe();
   });
 
-  it('should error when no articles found', function(done) {
-    checkDupe([], function(err) {
-      assert.equal(err, 'No articles for date found.');
-      done();
-    });
-  });
-
-  it('should push non duplicate ids', function(done) {
-    nock('https://www.reddit.com')
-      .get('/r/' + reddit.subreddit + '/new.json')
-      .reply(200, {
-        data: {
-          children: [
-            {
-              data: {
-                selftext: mockSelfTextNonDupe
-              }
-            }
-          ]
-        }
+  it('should return the non duplicate ids in first array', function(done) {
+    checkDupe.on('ready', function(readable) {
+      readable.on('data', function(data) {
+        var complement = mockCurrentIds.filter(function(id) {
+          return mockSubmittedIds.indexOf(id) < 0;
+        });
+        assert.deepEqual(data, complement);
+        done();
       });
-
-    checkDupe([mockId, mockId2], function(err, ids) {
-      assert.equal(err, null);
-      assert.deepEqual(ids, [mockId, mockId2]);
-      done();
     });
+    checkDupe.emit('data', mockCurrentIds, 0);
+    checkDupe.emit('data', mockSubmittedIds, 1);
   });
 
-  it('should not push if all ids are dupes', function(done) {
-    nock('https://www.reddit.com')
-      .get('/r/' + reddit.subreddit + '/new.json')
-      .reply(200, {
-        data: {
-          children: [
-            {
-              data: {
-                selftext: mockSelfText
-              }
-            }
-          ]
-        }
-      });
-
-    checkDupe([mockId], function(err, ids) {
-      assert.equal(err, 'No non-duplicates found.');
+  it('should emit empty when all dupes', function(done) {
+    checkDupe.on('empty', function() {
       done();
     });
-  });
 
-  it('should not error when no url in selftext', function(done) {
-    nock('https://www.reddit.com')
-      .get('/r/' + reddit.subreddit + '/new.json')
-      .reply(200, {
-        data: {
-          children: [
-            {
-              data: {
-                selftext: 'blah'
-              }
-            }
-          ]
-        }
-    });
-
-    checkDupe([mockId], function(err, ids) {
-      assert.equal(err, null);
-      assert.equal(ids, mockId)
-      done();
-    });
+    checkDupe.emit('data', mockCurrentIds, 0);
+    checkDupe.emit('data', mockCurrentIds, 1);
   });
 });

@@ -1,10 +1,10 @@
 {
   "name": "nhkeasybot",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "crawl nhkeasynews subreddit and submit new articles",
   "main": "index.js",
   "scripts": {
-    "test": "/node_modules/.bin/mocha"
+    "test": "export NODE_ENV=test && mocha -R spec"
   },
   "author": "babofitos",
   "license": "ISC",

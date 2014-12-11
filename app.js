@@ -22,11 +22,11 @@ reddit.login(username, password, function(err) {
     logger.error('Error logging in');
     throw err;
   } else {
-    setInterval(main.bind(undefined, new Date(), function(err) {
+    setInterval(main.bind(undefined, new Date(), function(err, stat) {
       if (err) {
-        console.error(err);
+        logger.warn(err);
       } else {
-        logger.info('done');
+        logger.info(stat);
       }
     }), config.loopInterval);
 
