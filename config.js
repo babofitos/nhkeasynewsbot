@@ -8,5 +8,6 @@ module.exports = {
   pingInterval: "300000",
   port: process.env.PORT || 5000,
   url: process.env.URL || 'http://localhost:5000',
-  env: process.env.NODE_ENV || 'development'
+  // env: process.env.NODE_ENV || 'development'
+  env: 'development'
 };
