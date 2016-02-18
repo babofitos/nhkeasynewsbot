@@ -1,16 +1,14 @@
-var config = require('../config.js');
-var source = require('../package.json').repository.url;
+let config = require('../config.js');
+let source = require('../package.json').repository.url;
 
-module.exports = function(data, cb) {
-  var date = require('./date.js').current();
-  var title = addDateToTitle(date, data.title);
-  var article = addUrlToArticle(data.url, data.article);
-  article = addBotInfoToText(article);
-
-  cb(null, {
-    title: title,
-    article: article
-  });
+module.exports = function(articles) {
+  let date = require('./date.js').current();
+  return articles.map(function(article) {
+    article.title = addDateToTitle(date, article.title);
+    article.article = addUrlToArticle(article.url, article.article);
+    article.article = addBotInfoToText(article.article);
+    return article;
+  })
 };
 
 function addUrlToArticle(url, article) {
