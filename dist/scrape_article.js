@@ -22,7 +22,7 @@ var request = require('request');
 module.exports = function (articleIds) {
   //id -> article url -> article object
   return articleIds.map(makeEasyUrl).map(function () {
-    var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(url) {
+    var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(url) {
       return _regenerator2.default.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
@@ -36,8 +36,9 @@ module.exports = function (articleIds) {
         }
       }, _callee, this);
     }));
+
     return function (_x) {
-      return ref.apply(this, arguments);
+      return _ref.apply(this, arguments);
     };
   }());
 };

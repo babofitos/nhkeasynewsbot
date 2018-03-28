@@ -15,7 +15,7 @@ var logger = require('./logger.js');
 
 module.exports = function (articles) {
   var submitArticle = function () {
-    var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(article) {
+    var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(article) {
       var title, text;
       return _regenerator2.default.wrap(function _callee$(_context) {
         while (1) {
@@ -45,8 +45,9 @@ module.exports = function (articles) {
         }
       }, _callee, this, [[2, 8]]);
     }));
+
     return function submitArticle(_x) {
-      return ref.apply(this, arguments);
+      return _ref.apply(this, arguments);
     };
   }();
 

@@ -1,6 +1,6 @@
 {
   "name": "nhkeasybot",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "crawl nhkeasynews subreddit and submit new articles",
   "scripts": {
     "test": "mocha --compilers js:babel-register",
@@ -21,10 +21,11 @@
     "chai-as-promised": "^5.2.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "gulp-cli": "^2.0.1"
   },
   "dependencies": {
-    "nhkeasy": "^2.0.1",
+    "nhkeasy": "^2.1.0",
     "request": "^2.69.0",
     "winston": "^2.1.1"
   }
